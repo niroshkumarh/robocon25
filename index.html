@@ -150,7 +150,7 @@
             <img src="./half iQube.jpeg" style="width: 100%;" alt="iQube Logo">
         </center>
         <h2 class="text-center mb-4">Recruitment</h2>
-        <form id="roboconForm" action="https://script.google.com/macros/s/AKfycbzBosZEncSSHdZNpfMSPKItN_h4Rgsuo7vMWal9AzlG_ryKPgxkTpiySQmf4bf2GC0xow/exec" method="post">
+        <form id="roboconForm" action="https://script.google.com/macros/s/AKfycbxXZKGMh3XAC7pxLu7Er2ex1Xnv-j2xLPRG63NZzBauHAKJwjsCoYjVoDK6eqCb2H-vHw/exec" method="post">
             <div class="form-group">
                 <label for="name">NAME</label>
                 <input type="text" class="form-control" id="name" name="name" placeholder="Enter your full name" required>
@@ -197,34 +197,16 @@
                 <div class="invalid-feedback">Please enter a valid college email address.</div>
             </div>
             <div class="form-group">
-                <label for="roleSelection">Which roles are you interested in?</label>
-                <div>
-                    <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="checkbox" id="managementTeam" name="roles[]" value="Management Team">
-                        <label class="form-check-label" for="managementTeam">Management Team</label>
-                    </div>
-                </div>
+                <label for="roleSelection">Select a Domain</label>
+                <select class="form-control" id="roleSelection" required>
+                    <option value="" disabled selected>Select a domain</option>
+                    <option value="mechanical">Mechanical Domain</option>
+                    <option value="electrical">Electrical and Embedded Domain</option>
+                    <option value="ai_ros">AI and ROS Domain</option>
+                </select>
             </div>
-            <div id="managementDetails" class="conditional-field">
-                <div class="form-group">
-                    <label for="managementRole">Select Your Management Role</label>
-                    <select class="form-control" id="managementRole" name="managementRole">
-                        <option value="" disabled selected>Select a role</option>
-                        <option value="Event Coordinator">Event Coordinator</option>
-                        <option value="Finance Manager">Sponsorship / Finance Manager</option>
-                        <option value="Logistics Manager">Logistics Manager</option>
-                    </select>
-                    <div class="invalid-feedback">Please select your management role.</div>
-                </div>
-            </div>
-            <div id="technicalDetails" class="conditional-field">
-                <div class="form-group">
-                    <label for="technicalSkills">Please list your technical skills relevant to the team</label>
-                    <div class="tags-input-container" id="technicalSkillsContainer">
-                        <input type="text" id="technicalSkillsInput" name="technicalSkills[]" placeholder="Type a skill and press enter">
-                    </div>
-                    <div class="invalid-feedback">Please enter your technical skills.</div>
-                </div>
+            <div id="roleDetails" class="conditional-field">
+                <!-- This section will be populated dynamically based on the user's selection -->
             </div>
             <div class="form-group">
                 <label for="clubsForums">Are you a part of any other Clubs and Forums?</label>
@@ -238,6 +220,14 @@
                         <label class="form-check-label" for="clubsForumsNo">No</label>
                     </div>
                 </div>
+
+<!-- Updated Hidden Inputs -->
+<input type="hidden" name="selectedDomain" id="selectedDomain">
+<input type="hidden" name="selectedSubdomains" id="selectedSubdomains">
+
+
+
+
                 <div class="invalid-feedback">Please select an option.</div>
             </div>
             <div id="clubsDetails" class="conditional-field">
@@ -263,6 +253,72 @@
         </form>
     </div>
     <script>
+        const roleDetails = {
+            "mechanical": {
+                "title": "Mechanical Domain",
+                "description": "Choose your fields of interest:",
+                "fields": [
+                    "Design and Fabrication",
+                    "Pneumatics",
+                    "Matlab (Mechanical Simulation)"
+                ]
+            },
+            "electrical": {
+                "title": "Electrical and Embedded Domain",
+                "description": "Choose your fields of interest:",
+                "fields": [
+                    "Circuit Design",
+                    "Battery Management",
+                    "Programming",
+                    "Matlab (Simulink)"
+                ]
+            },
+            "ai_ros": {
+                "title": "AI and ROS Domain",
+                "description": "Choose your fields of interest:",
+                "fields": [
+                    "Machine Learning",
+                    "Robotic Operating System"
+                ]
+            }
+        };
+
+        document.getElementById('roleSelection').addEventListener('change', function() {
+            const selectedRole = this.value;
+            const roleInfo = roleDetails[selectedRole];
+            const roleDetailsContainer = document.getElementById('roleDetails');
+            // document.getElementById('selectedDomain').value = this.value;
+
+
+            if (roleInfo) {
+                roleDetailsContainer.innerHTML = `
+                    <div class="mt-4">
+                        <h4>${roleInfo.title}</h4>
+                        <p>${roleInfo.description}</p>
+                        <div>
+                            ${roleInfo.fields.map(field => `
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="fieldsOfInterest[]" value="${field}" id="${field.replace(/\s+/g, '')}">
+                                    <label class="form-check-label" for="${field.replace(/\s+/g, '')}">
+                                        ${field}
+                                    </label>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+                roleDetailsContainer.classList.add('show');
+                            // Update the hidden input for the selected domain
+            document.getElementById('selectedDomain').value = selectedRole;
+            console.log("Selected Domain:", selectedRole);  // Debugging Line
+            } else {
+                roleDetailsContainer.classList.remove('show');
+                roleDetailsContainer.innerHTML = ''; // Clear content if no role is selected
+                document.getElementById('selectedDomain').value = ''; // Clear hidden input
+
+            }
+        });
+
         document.getElementById('rollNumber').addEventListener('input', function() {
             this.value = this.value.toUpperCase();
         });
@@ -276,40 +332,6 @@
                 }
             });
         });
-
-        document.getElementById('managementTeam').addEventListener('change', function() {
-            const managementDetails = document.getElementById('managementDetails');
-            const managementRole = document.getElementById('managementRole');
-            managementDetails.classList.toggle('show', this.checked);
-            managementRole.required = this.checked;
-            if (!this.checked) {
-                managementRole.value = ""; // Reset value if unchecked
-            }
-        });
-
-        document.getElementById('technicalSkillsInput').addEventListener('keydown', function(event) {
-            if (event.key === 'Enter' && this.value.trim() !== '') {
-                event.preventDefault();
-                addTag(this.value.trim());
-                this.value = '';
-            }
-        });
-
-        function addTag(tagText) {
-            const tag = document.createElement('span');
-            tag.className = 'tag';
-            tag.textContent = tagText;
-
-            const removeTag = document.createElement('span');
-            removeTag.className = 'remove-tag';
-            removeTag.textContent = 'x';
-            removeTag.addEventListener('click', function() {
-                tag.remove();
-            });
-
-            tag.appendChild(removeTag);
-            document.getElementById('technicalSkillsContainer').insertBefore(tag, document.getElementById('technicalSkillsInput'));
-        }
 
         document.getElementById('clubsForumsYes').addEventListener('change', function() {
             document.getElementById('clubsDetails').classList.add('show');
@@ -338,94 +360,136 @@
         function removeClubRow(button) {
             button.closest('.row').remove();
         }
-    </script>
 
-    <script>
         document.getElementById('roboconForm').addEventListener('submit', function(e) {
-            e.preventDefault();
+    e.preventDefault();
 
-            const form = e.target;
-            const submitButton = form.querySelector('button[type="submit"]');
-            submitButton.disabled = true;
-            submitButton.textContent = 'Submitting...';
+    const form = e.target;
+    const submitButton = form.querySelector('button[type="submit"]');
+    submitButton.disabled = true;
+    submitButton.textContent = 'Submitting...';
 
-            let isValid = true;
+    let isValid = true;
 
+    // Validate email field specifically
+    const emailField = document.getElementById('collegeMail');
+    const emailPattern = /^[a-zA-Z0-9._%+-]+@(kct\.ac\.in|kclas\.ac\.in|kctbs\.ac\.in|kia\.ac\.in)$/;
+    if (!emailPattern.test(emailField.value.trim())) {
+        emailField.classList.add('is-invalid');
+        isValid = false;
+    } else {
+        emailField.classList.remove('is-invalid');
+    }
 
-
-            // Validate email field specifically
-            const emailField = document.getElementById('collegeMail');
-            const emailPattern = /^[a-zA-Z0-9._%+-]+@(kct\.ac\.in|kclas\.ac\.in|kctbs\.ac\.in|kia\.ac\.in)$/;
-            if (!emailPattern.test(emailField.value.trim())) {
-                emailField.classList.add('is-invalid');
-                isValid = false;
-            } else {
-                emailField.classList.remove('is-invalid');
-            }
-
-            
-            form.querySelectorAll('input, select').forEach(function(element) {
-                if (!element.checkValidity()) {
-                    element.classList.add('is-invalid');
-                    isValid = false;
-                }
-            });
-
-            if (!isValid) {
-                Swal.fire({
-                    title: 'Error!',
-                    text: 'Please correct the errors in the form before submitting.',
-                    icon: 'error',
-                    confirmButtonText: 'OK'
-                });
-                submitButton.disabled = false;
-                submitButton.textContent = 'Submit';
-                return;
-            }
-
-            const formData = new FormData(form);
-
-            fetch(form.action, {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                submitButton.disabled = false;
-                submitButton.textContent = 'Submit';
-                if (data.result === "success") {
-                    Swal.fire({
-                        title: 'Success!',
-                        text: 'Your application has been submitted successfully.',
-                        icon: 'success',
-                        confirmButtonText: 'OK'
-                    }).then(() => {
-                        form.reset(); // Reset the form after successful submission
-                        document.getElementById('managementDetails').classList.remove('show');
-                        document.getElementById('clubsDetails').classList.remove('show');
-                        document.getElementById('technicalSkillsContainer').querySelectorAll('.tag').forEach(tag => tag.remove());
-                    });
-                } else {
-                    Swal.fire({
-                        title: 'Error!',
-                        text: 'There was an error submitting your application: ' + data.message,
-                        icon: 'error',
-                        confirmButtonText: 'OK'
-                    });
-                }
-            })
-            .catch(error => {
-                submitButton.disabled = false;
-                submitButton.textContent = 'Submit';
-                Swal.fire({
-                    title: 'Error!',
-                    text: 'There was an error submitting your application.',
-                    icon: 'error',
-                    confirmButtonText: 'OK'
-                });
-            });
+    // Validate that at least one skill is selected
+    const selectedFields = Array.from(document.querySelectorAll('input[name="fieldsOfInterest[]"]:checked'))
+        .map(checkbox => checkbox.value)
+        .join(', ');
+    if (selectedFields === "") {
+        Swal.fire({
+            title: 'Error!',
+            text: 'Please select at least one field of interest.',
+            icon: 'error',
+            confirmButtonText: 'OK'
         });
-    </script>
+        submitButton.disabled = false;
+        submitButton.textContent = 'Submit';
+        isValid = false;
+    } else {
+        document.getElementById('selectedSubdomains').value = selectedFields;
+    }
+
+    // Validate clubs and roles if "Yes" is selected for clubs/forums
+    const clubsForumsYes = document.getElementById('clubsForumsYes').checked;
+    if (clubsForumsYes) {
+        const clubNameInputs = document.querySelectorAll('input[name="clubName[]"]');
+        const clubRoleInputs = document.querySelectorAll('input[name="clubRole[]"]');
+        let hasValidClub = false;
+
+        clubNameInputs.forEach((input, index) => {
+            const roleInput = clubRoleInputs[index];
+            if (input.value.trim() !== "" && roleInput.value.trim() !== "") {
+                hasValidClub = true;
+            }
+        });
+
+        if (!hasValidClub) {
+            Swal.fire({
+                title: 'Error!',
+                text: 'Please enter both club name and role, or select "No" if you are not part of any clubs.',
+                icon: 'error',
+                confirmButtonText: 'OK'
+            });
+            submitButton.disabled = false;
+            submitButton.textContent = 'Submit';
+            isValid = false;
+        }
+    }
+
+    form.querySelectorAll('input, select').forEach(function(element) {
+        if (!element.checkValidity()) {
+            element.classList.add('is-invalid');
+            isValid = false;
+        }
+    });
+
+    if (!isValid) {
+        return;
+    }
+
+    const formData = new FormData(form);
+
+    fetch(form.action, {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        submitButton.disabled = false;
+        submitButton.textContent = 'Submit';
+        if (data.result === "success") {
+            Swal.fire({
+                title: 'Success!',
+                text: 'Your application has been submitted successfully.',
+                icon: 'success',
+                confirmButtonText: 'OK'
+            }).then(() => {
+                form.reset(); // Reset the form after successful submission
+                document.getElementById('managementDetails').classList.remove('show');
+                document.getElementById('clubsDetails').classList.remove('show');
+            });
+        } else {
+            Swal.fire({
+                title: 'Error!',
+                text: 'There was an error submitting your application: ' + data.message,
+                icon: 'error',
+                confirmButtonText: 'OK'
+            });
+        }
+    })
+    .catch(error => {
+        submitButton.disabled = false;
+        submitButton.textContent = 'Submit';
+        Swal.fire({
+            title: 'Error!',
+            text: 'There was an error submitting your application.',
+            icon: 'error',
+            confirmButtonText: 'OK'
+        });
+    });
+});
+
+// Handle showing/hiding of club details based on "Are you a part of any other Clubs and Forums?"
+document.getElementById('clubsForumsYes').addEventListener('change', function() {
+    document.getElementById('clubsDetails').classList.add('show');
+});
+
+document.getElementById('clubsForumsNo').addEventListener('change', function() {
+    document.getElementById('clubsDetails').classList.remove('show');
+});
+
+   
+   </script>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
